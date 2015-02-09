@@ -10,7 +10,7 @@ This repository contains **Dockerfile** of [Hbase 0.98.10](http://hbase.apache.o
 
 1. Install [Docker](https://www.docker.com/)
 
-2. Download [trusted build](https://registry.hub.docker.com/u/cogniteev/hbase-standalone/): `docker pull cogniteev/hbase-standalone`
+2. Download [automated build](https://registry.hub.docker.com/u/cogniteev/hbase-standalone/): `docker pull cogniteev/hbase-standalone`
 
 ### Usage
 
