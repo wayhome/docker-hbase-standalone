@@ -1,16 +1,31 @@
 FROM dockerfile/java:oracle-java8
 MAINTAINER Cogniteev <tech@cogniteev.com>
 
-RUN groupadd -r hbase && useradd -m -r -g hbase hbase
-USER hbase
+ENV HBASE_VERSION=0.98.10
 
+RUN groupadd -r hbase && useradd -m -r -g hbase hbase
+
+USER hbase
+ENV HOME=/home/hbase
+
+# Download'n extract hbase
 RUN cd /home/hbase && \
     wget -O - -q \
-    http://apache.mesi.com.ar/hbase/hbase-0.98.10/hbase-0.98.10-hadoop2-bin.tar.gz \
+    http://apache.mesi.com.ar/hbase/hbase-${HBASE_VERSION}/hbase-${HBASE_VERSION}-hadoop2-bin.tar.gz \
     | tar --strip-components=1 -zxf -
 
+# Upload local configuration
 ADD ./conf/ /home/hbase/conf/
-WORKDIR /home/hbase
+USER root
+RUN chown -R hbase:hbase /home/hbase/conf
+USER hbase
+
+# Prepare data volumes
+RUN mkdir /home/hbase/data
+RUN mkdir /home/hbase/logs
+
+VOLUME /home/hbase/data
+VOLUME /home/hbase/logs
 
 # zookeeper
 EXPOSE 2181
@@ -23,4 +38,5 @@ EXPOSE 60020
 # HBase Regionserver web UI
 EXPOSE 60030
 
+WORKDIR /home/hbase
 CMD /home/hbase/bin/hbase master start
