@@ -4,6 +4,8 @@ MAINTAINER Cogniteev <tech@cogniteev.com>
 ENV HBASE_VERSION=0.98.10
 
 RUN groupadd -r hbase && useradd -m -r -g hbase hbase
+RUN apt-get update && apt-get install -y openssh-server supervisor
+RUN mkdir -p /var/run/sshd /var/log/supervisor
 
 USER hbase
 ENV HOME=/home/hbase
@@ -37,6 +39,9 @@ EXPOSE 60010
 EXPOSE 60020
 # HBase Regionserver web UI
 EXPOSE 60030
+# HBase thrift API
+EXPOSE 9090
 
+COPY conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 WORKDIR /home/hbase
-CMD /home/hbase/bin/hbase master start
+CMD /usr/bin/supervisord
