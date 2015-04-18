@@ -10,12 +10,12 @@ This repository contains **Dockerfile** of [Hbase 0.98.10](http://hbase.apache.o
 
 1. Install [Docker](https://www.docker.com/)
 
-2. Download [automated build](https://registry.hub.docker.com/u/cogniteev/hbase-standalone/): `docker pull cogniteev/hbase-standalone`
+2. Download [automated build](https://registry.hub.docker.com/u/youngking/hbase-standalone/): `docker pull youngking/hbase-standalone`
 
 ### Basic usage
 
 ```sh
-docker run -d -p 2181:2181 -p 60000:60000 -p 60010:60010 -p 60020:60020 -p 60030:60030 cogniteev/hbase-standalone
+docker run --name hbase -d -p 2181:2181 -p 60000:60000 -p 60010:60010 -p 60020:60020 -p 60030:60030 -p 9090:9090 -p 10022:22 youngking/hbase-standalone
 ```
 
 Open http://docker.ip.add.ress:60010 in a browser
@@ -34,7 +34,7 @@ $ docker run -d \
     -p 60020:60020 \
     -p 60030:60030 \
     -h hbase-srv \
-    cogniteev/hbase-standalone
+    youngking/hbase-standalone
 72531260512e416e2d7bf3bb452917972df1328f86ab4b6fbdb476222b009363
 $ docker run 
     --link \

@@ -1,14 +1,26 @@
 FROM dockerfile/java:oracle-java8
 MAINTAINER Cogniteev <tech@cogniteev.com>
 
-ENV HBASE_VERSION=0.98.10
-
-RUN groupadd -r hbase && useradd -m -r -g hbase hbase
+# ssh and supervisord
 RUN apt-get update && apt-get install -y openssh-server supervisor
 RUN mkdir -p /var/run/sshd /var/log/supervisor
 
+RUN echo 'root:test123' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+
+
+ENV HBASE_VERSION=0.98.10
+
+RUN groupadd -r hbase && useradd -m -r -g hbase hbase
 USER hbase
 ENV HOME=/home/hbase
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # Download'n extract hbase
 RUN cd /home/hbase && \
@@ -18,16 +30,16 @@ RUN cd /home/hbase && \
 
 # Upload local configuration
 ADD ./conf/ /home/hbase/conf/
-USER root
-RUN chown -R hbase:hbase /home/hbase/conf
-USER hbase
-
 # Prepare data volumes
-RUN mkdir /home/hbase/data
-RUN mkdir /home/hbase/logs
+RUN mkdir /home/hbase/data && mkdir /home/hbase/logs
 
 VOLUME /home/hbase/data
 VOLUME /home/hbase/logs
+USER root
+RUN chown -R hbase:hbase /home/hbase/conf
+
+
+
 
 # zookeeper
 EXPOSE 2181
@@ -41,7 +53,8 @@ EXPOSE 60020
 EXPOSE 60030
 # HBase thrift API
 EXPOSE 9090
+# SSH Port
+EXPOSE 22
 
 COPY conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-WORKDIR /home/hbase
 CMD /usr/bin/supervisord
